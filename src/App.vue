@@ -5,9 +5,10 @@
       <router-link to="/about">About</router-link>
     </div> -->
     <router-link to="/">Home</router-link>
-    <router-link to="/login" v-if="!currentUser">Login</router-link>
-    <button @click="logout">Logout</button>
-    <button @click="test">test</button>
+    <router-link to="/login" v-if="!isLogin">Login</router-link>
+    <router-link to="/management" v-if="isLogin">Management</router-link>
+    <router-link to="/" @click.native="logout" v-if="isLogin">Logout</router-link>
+    <!-- <button @click="test">test</button> -->
     <router-view/>
   </div>
 </template>
@@ -27,28 +28,32 @@
 <script>
 import store from '@/store'
 import firebase from 'firebase'
+import { setInterval } from 'timers';
 
 export default {
   data() {
     return {
-      currentUser: firebase.auth().currentUser
+      isLogin: false
     }
   },
   computed: {
-    // currentUser = store.state.currentUser
+    currentUser: () => store.state.currentUser
+  },
+  watch: {
+    currentUser() {
+      console.log('changed')
+      this.isLogin = !!firebase.auth().currentUser
+    }
   },
   methods: {
     logout() {
-      firebase.auth().signOut().then(function() {
-        // Sign-out successful.
-        // this.currentUser = firebase.auth().currentUser
-      }).catch(function(error) {
-        // An error happened.
-      });
+      store.dispatch('logout');
     },
     test() {
-      console.log(store.state.currentUser)
+      this.isLogin = !!firebase.auth().currentUser
     }
+  },
+  mounted() {
   }
 }
 </script>

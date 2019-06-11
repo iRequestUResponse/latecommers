@@ -19,6 +19,11 @@ export default new Router({
       component: Login
     },
     {
+      path: '/management',
+      name: 'management',
+      component: () => import('./views/Management.vue')
+    },
+    {
       path: '/example',
       name: 'example',
       component: Example

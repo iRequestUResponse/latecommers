@@ -13,7 +13,7 @@
   import firebaseui from 'firebaseui'
 
   export default {
-    created() {
+    mounted() {
       this.begin();
     },
     methods: {
@@ -24,9 +24,10 @@
               // User successfully signed in.
               // Return type determines whether we continue the redirect automatically
               // or whether we leave that to developer to handle.
-              store.state.currentUser = firebase.auth().currentUser
-              alert("success!")
-              return true;
+              store.commit('login', firebase.auth().currentUser)
+              // console.log(store.state.login, store.state.test)
+              // console.log(firebase.auth().currentUser)
+              return false;
             },
             // uiShown() {
             //   // The widget is rendered.
@@ -41,7 +42,6 @@
         }
 
         store.state.ui.start('#firebaseui-auth-container', uiConfig);
-        console.log(document.querySelector('#firebaseui-auth-container'))
       }
     }
   }

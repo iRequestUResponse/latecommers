@@ -12,30 +12,61 @@ firebase.initializeApp({
   storageBucket: "late-comers.appspot.com",
 });
 
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-.then(function() {
-  // Existing and future Auth states are now persisted in the current
-  // session only. Closing the window would clear any existing state even
-  // if a user forgets to sign out.
-  // ...
-  // New sign-in will be persisted with session persistence.
-  return firebase.auth().signInWithEmailAndPassword(email, password);
-})
-.catch(function(error) {
-  // Handle Errors here.
-  // var errorCode = error.code;
-  // var errorMessage = error.message;
-});
-
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     ui: new firebaseui.auth.AuthUI(firebase.auth()),
-    currentUser: null
+    currentUser: firebase.auth().currentUser,
+    test: 0
   },
   mutations: {
-
+    test(state, payload) {
+      state.test = payload;
+    },
+    login(state, payload) {
+      state.currentUser = payload
+    },
+    logout(state) {
+      state.currentUser = null;
+    }
   },
   actions: {
+    // init({ commit }) {
+    //   firebase.initializeApp({
+    //     apiKey: "AIzaSyC8q1VoE4EBlUUOrkmCRgfoonbiJWWB-ak",
+    //     authDomain: "late-comers.firebaseapp.com",
+    //     databaseURL: "https://late-comers.firebaseio.com",
+    //     storageBucket: "late-comers.appspot.com",
+    //   })
 
+    //   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+
+    //   firebase.auth().onAuthStateChanged(function(user) {
+    //     if (user) {
+    //       commit('login', user)
+    //     }
+    //   })
+    // },
+    logout({ commit }) {
+      firebase.auth().signOut().then(function() {
+        // Sign-out successful.
+        // this.currentUser = firebase.auth().currentUser
+        commit('logout')
+        console.log('logout')
+      }).catch(function(error) {
+        // An error happened.
+        console.log('failed to logout')
+      });
+    }
   },
+  
 })
+
+export default store
+
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    store.commit('login', user)
+  }
+});
