@@ -26,9 +26,8 @@
 </style>
 
 <script>
-import store from '@/store'
 import firebase from 'firebase'
-import { setInterval } from 'timers';
+import { mapState, mapActions } from 'vuex'
 
 export default {
   data() {
@@ -37,23 +36,25 @@ export default {
     }
   },
   computed: {
-    currentUser: () => store.state.currentUser
+    ...mapState([
+      'currentUser'
+    ]),
   },
   watch: {
     currentUser() {
-      console.log('changed')
       this.isLogin = !!firebase.auth().currentUser
     }
   },
   methods: {
-    logout() {
-      store.dispatch('logout');
-    },
+    ...mapActions([
+      'init', 'logout'
+    ]),
     test() {
       this.isLogin = !!firebase.auth().currentUser
     }
   },
-  mounted() {
+  created() {
+    this.init()
   }
 }
 </script>

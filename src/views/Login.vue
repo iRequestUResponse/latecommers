@@ -8,32 +8,31 @@
 </template>
 
 <script>
-  import store from '@/store'
   import firebase from 'firebase'
   import firebaseui from 'firebaseui'
+  import { mapState, mapMutations } from 'vuex'
 
   export default {
+    computed: {
+      ...mapState([
+        'ui'
+      ])
+    },
     mounted() {
       this.begin();
     },
     methods: {
+      ...mapMutations([
+        'login'
+      ]),
       begin() {
-        var uiConfig = {
+        const const_this = this;
+        const uiConfig = {
           callbacks: {
             signInSuccessWithAuthResult(authResult, redirectUrl) {
-              // User successfully signed in.
-              // Return type determines whether we continue the redirect automatically
-              // or whether we leave that to developer to handle.
-              store.commit('login', firebase.auth().currentUser)
-              // console.log(store.state.login, store.state.test)
-              // console.log(firebase.auth().currentUser)
-              return false;
+              const_this.login(firebase.auth().currentUser)
+              return false; // redirect?
             },
-            // uiShown() {
-            //   // The widget is rendered.
-            //   // Hide the loader.
-            //   document.getElementById('loader').style.display = 'none';
-            // }
           },
           signInSuccessUrl: '/home',
           signInOptions: [
@@ -41,7 +40,7 @@
           ],
         }
 
-        store.state.ui.start('#firebaseui-auth-container', uiConfig);
+        this.ui.start('#firebaseui-auth-container', uiConfig);
       }
     }
   }
