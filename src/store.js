@@ -9,8 +9,7 @@ export default new Vuex.Store({
   state: {
     ui: null,
     currentUser: null,
-    students: null,
-    penalties: null,
+    database: {},
   },
   mutations: {
     // test(state, payload) {
@@ -25,10 +24,9 @@ export default new Vuex.Store({
     initUI(state) {
       state.ui = new firebaseui.auth.AuthUI(firebase.auth())
     },
-    testCommit(state, payload) {
-      console.log('success', payload)
-      state.students = payload
-    }
+    update(state, payload) {
+      state.database = { ...state.database, ...payload }
+    },
   },
   actions: {
     init({ commit }) {
@@ -45,11 +43,13 @@ export default new Vuex.Store({
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
           commit('login', user)
-          // 기타 init
+          firebase.database().ref('/jaehoon').on('value', function(snapshot) {
+            commit('update', snapshot.val())
+          })
         }
       })
 
-      if (!this.state.ui) this.commit('initUI')
+      this.commit('initUI')
     },
     logout({ commit }) {
       firebase.auth().signOut().then(function() {

@@ -1,9 +1,9 @@
 <template>
   <div v-if="currentUser">
-    management test
-    {{ currentUser }}
-    <input v-model="test">
-    <button @click="zxcv">asdf</button>
+    <div class="header">학생 관리</div>
+
+    <comp-student></comp-student>
+    {{ database }}
   </div>
 </template>
 
@@ -22,7 +22,7 @@
     },
     computed: {
       ...mapState([
-        'currentUser', 'students'
+        'currentUser', 'database'
       ])
     },
     methods: {
@@ -31,32 +31,22 @@
       - 
       */
       ...mapMutations([
-        'testCommit'
+        'update'
       ]),
-      zxcv() {
-        const const_this = this
-        const dummy = {}
-        dummy[this.test.split('/')[0]] = this.test.split('/')[1]
-        db.ref('/jaehoon/').update({
-          ...dummy
-        }, function(error) {
-          if (error) {
-            console.warn('error: ' + eror)
-            // this.testCommit(dummy)
-          } else {
-            console.log('successfully...')
-          }
-        })
-      }
     },
     mounted() {
       if (!this.currentUser) {
         router.push('/')
       }
+    },
+    components: {
+      'comp-student': () => import('@/components/Students.vue')
     }
   }
 </script>
 
 <style scoped>
-
+  .header {
+    font-weight: bold;
+  }
 </style>
