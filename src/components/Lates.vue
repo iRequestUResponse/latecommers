@@ -1,6 +1,6 @@
 <template>
-  <div>
-    {{ date }}
+  <div @mousedown="touch" @mouseup="takeOff">
+    {{ mousePos }}
   </div>
 </template>
 
@@ -11,17 +11,39 @@
   export default {
     data() {
       return {
-        date: new Date()
+        date: new Date(),
+        mousePos: null
       }
     },
     computed: {
       ...mapState([
         'database'
       ])
+    },
+    methods: {
+      touch(event) {
+        this.mousePos = {
+          x: event.x,
+          y: event.y,
+          state: 'touch'
+        }
+      },
+      takeOff(event) {
+        const endPos = {
+          x: event.x,
+          y: event.y,
+          state: 'takeoff'
+        }
+
+        
+      },
     }
   }
 </script>
 
 <style scoped>
-
+div {
+  width: 100vw;
+  height: 100vh;
+}
 </style>
