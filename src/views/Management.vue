@@ -1,23 +1,25 @@
 <template>
   <div v-if="currentUser">
-    <div class="header">학생 관리</div>
 
-    <comp-student></comp-student>
-    {{ database }}
+    <button @click="function() { tab = 0 }">학생 관리</button>
+    <button @click="function() { tab = 1 }">지각 관리</button>
+    <comp-student v-show="tab === 0"></comp-student>
+    <comp-late v-show="tab === 1"></comp-late>
   </div>
 </template>
 
 <script>
   import router from '@/router'
-  import { mapState, mapMutations } from 'vuex'
+  import { mapState } from 'vuex'
   import firebase from 'firebase'
 
-  const db = firebase.database()
-  
+  import compStudent from '@/components/Students.vue'
+  import compLate from '@/components/Lates.vue'
+
   export default {
     data() {
       return {
-        test: null
+        tab: 0
       }
     },
     computed: {
@@ -26,13 +28,6 @@
       ])
     },
     methods: {
-      /* 
-      사용할 store 메서드(actions) : store에 정의하자
-      - 
-      */
-      ...mapMutations([
-        'update'
-      ]),
     },
     mounted() {
       if (!this.currentUser) {
@@ -40,7 +35,7 @@
       }
     },
     components: {
-      'comp-student': () => import('@/components/Students.vue')
+      compStudent, compLate
     }
   }
 </script>
