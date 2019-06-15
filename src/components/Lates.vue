@@ -10,16 +10,21 @@
     <div class="th" v-for="(student, index) in database.students" :key="index" @mousedown="touch" @mousemove="swipe" @mouseup="takeOff">
       <span class="name">{{ student.name }}</span>
       <div class="lates">
-        <span
+        <!-- <span
           class="late"
-          v-for="(late, lateIndex) in dates"
-          :key="lateIndex"
+          v-for="(date, dateIndex) in new Array(daysOfMonth).fill(1)"
+          :key="dateIndex"
           @click="viewIndex"
-        >
+          :data-studentid="student.id"
+          :data-date="dateIndex"
+        > -->
         
           <!-- {{ late }} -->
-          {{ lateIndex+1 }}
+          <!-- {{ dateIndex+1 }} -->
           <!-- :data-studentId="late[index].id" -->
+        <!-- </span> -->
+        <span v-for="(student, studentIndex) in students" :key="studentIndex">
+          {{ student.id }}
         </span>
       </div>
     </div>
@@ -47,6 +52,14 @@
       ...mapState([
         'database'
       ]),
+      students() {
+        return this.database.students
+        .map(e => {
+          return {...e, lateDates: new Array(this.daysOfMonth).map({
+            id: e.id
+          })}
+        })
+      },
       beginDate() {
         return new Date(this.database.beginDate)
       },
@@ -60,14 +73,6 @@
           +e.month === +this.currentMonth.month
         )
       },
-      dates() {
-        return new Array(this.daysOfMonth)
-        .fill(1)
-      },
-      // dates() {
-      //   return new Array((this.endDate - this.beginDate) / 86400000)
-      //   .fill(JSON.parse(JSON.stringify(this.database.students)))
-      // },
       daysOfMonth() {
         return new Date(this.currentMonth.year, this.currentMonth.month+1, 0).getDate()
       }
@@ -117,7 +122,9 @@
         }
       },
       viewIndex(event) {
-        console.log(event.target.dataset.studentid)
+        const student = event.target.dataset.studentid
+        const date = event.target.dataset.date+1
+        // do anything
       }
     }
   }
