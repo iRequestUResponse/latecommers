@@ -9,7 +9,11 @@ export default new Vuex.Store({
   state: {
     ui: null,
     currentUser: null,
-    database: {},
+    database: {
+      students: [],
+      lates: [],
+      penalty: 1000,
+    },
   },
   mutations: {
     // test(state, payload) {

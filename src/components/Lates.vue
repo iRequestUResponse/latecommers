@@ -1,51 +1,42 @@
 <template>
-  <div>
-    {{ database.lates }}
-    <br>
-    <br>
-    {{ currentMonthLaters }}
-    <div>
-      <button @click="monthMinus">&lt;</button><span>{{ currentMonth.year }}년 {{ currentMonth.month + 1 }} 월</span><button @click="monthPlus">&gt;</button>
+  <div id="touchMover">
+    <div class="dateSelector">
+      <button @click="monthMinus">&lt;</button><span>{{ cDate.getFullYear() }}년 {{ cDate.getMonth() + 1 }} 월</span><button @click="monthPlus">&gt;</button>
     </div>
-    <div class="th" v-for="(student, index) in database.students" :key="index" @mousedown="touch" @mousemove="swipe" @mouseup="takeOff">
-      <span class="name">{{ student.name }}</span>
-      <div class="lates">
-        <!-- <span
-          class="late"
-          v-for="(date, dateIndex) in new Array(daysOfMonth).fill(1)"
-          :key="dateIndex"
-          @click="viewIndex"
-          :data-studentid="student.id"
-          :data-date="dateIndex"
-        > -->
-        
-          <!-- {{ late }} -->
-          <!-- {{ dateIndex+1 }} -->
-          <!-- :data-studentId="late[index].id" -->
-        <!-- </span> -->
-        <span v-for="(student, studentIndex) in students" :key="studentIndex">
-          {{ student.id }}
+    <div class="calendar">
+      <div v-for="(calRow, calIndex) in getCalendar" :key="calIndex">
+        <span
+          v-for="(date, dateIndex) in calRow" :key="dateIndex"
+          :class="{date: true, cMonth: date.month === cDate.getMonth()}"
+          :data-info="JSON.stringify(date)"
+          @click="modalPopup"
+        >
+        <!-- span class에 미납자 여부에 따라서 색 다르게 하자 -->
+          {{ date.date }}
+          <div class="latersNumber" v-if="date.laters.length > 0">
+            {{ date.laters.length }}
+          </div>
         </span>
       </div>
     </div>
+    <modal :show="modalShow" :laters="laters" @hide="modalShow = false"></modal>
   </div>
 </template>
 
 <script>
   import firebase from 'firebase'
   import { mapState } from 'vuex'
+  import modal from '@/components/ModalModifyStudent.vue'
+  import Hammer from '@/assets/hammer.min.js'
 
   export default {
+    mounted() {
+    },
     data() {
       return {
-        date: new Date(),
-        mousePos: {
-          state: 'takeOff'
-        },
-        currentMonth: {
-          year: new Date().getFullYear(),
-          month: new Date().getMonth()
-        },
+        cDate: new Date(),
+        modalShow: false,
+        laters: "{}",
       }
     },
     computed: {
@@ -55,77 +46,108 @@
       students() {
         return this.database.students
         .map(e => {
-          return {...e, lateDates: new Array(this.daysOfMonth).map({
-            id: e.id
-          })}
+          return {...e, lates: new Array(this.daysOfMonth).fill({}).map(function() {
+              return {
+                id: e.id,
+                name: e.name,
+                late: false,
+                paid: false
+              }
+            })
+          }
         })
       },
-      beginDate() {
-        return new Date(this.database.beginDate)
-      },
-      endDate() {
-        return new Date(this.database.endDate)
-      },
-      currentMonthLaters() {
-        return this.database.lates.filter(e => 
-          +e.year === +this.currentMonth.year
-          &&
-          +e.month === +this.currentMonth.month
-        )
+      getCalendar() {
+        const _cDay = new Date(this.cDate.getFullYear(), this.cDate.getMonth(), 1).getDay()
+        
+        const prevMonth = new Date(this.cDate.getFullYear(), this.cDate.getMonth(), 0)
+
+        let arr = new Array(_cDay)
+        .fill({})
+        .map((e, i) => {
+          return {
+            year: prevMonth.getFullYear(),
+            month: prevMonth.getMonth(),
+            date: prevMonth.getDate() - _cDay + i + 1,
+            day: i,
+            laters: []
+          }
+        })
+
+        arr = arr.concat(new Array(this.daysOfMonth)
+        .fill(1)
+        .map((e, i) => {
+          return {
+            year: this.cDate.getFullYear(),
+            month: this.cDate.getMonth(),
+            date: i + 1,
+            day: (i + _cDay) % 7,
+            laters: []
+          }
+        }))
+
+        const nextMonth = new Date(this.cDate.getFullYear(), this.cDate.getMonth() + 1, 1)
+        const lastDay = new Date(nextMonth)
+        lastDay.setDate(0)
+
+        arr = arr.concat(...new Array(6 - lastDay.getDay()).fill(1).map((e, i) => {
+          return {
+            year: nextMonth.getFullYear(),
+            month: nextMonth.getMonth(),
+            date: i + 1,
+            day: (i + nextMonth.getDay()) % 7,
+            laters: []
+          }
+        }))
+
+        for (const e of this.database.lates) {
+          const _calendarDate = arr.filter(v => 
+            v.year === e.year
+            &&
+            v.month === e.month
+            &&
+            v.date === e.date
+          )
+
+          for (const i in _calendarDate) {
+            _calendarDate[i].laters.push(e.student)
+          }
+        }
+
+        const row = Math.ceil(arr.length / 7)
+        const result = new Array(row).fill([])
+        for (const i in result) {
+          result[i] = arr.slice(i * 7, i * 7 + 7)
+        }
+
+        return result
       },
       daysOfMonth() {
-        return new Date(this.currentMonth.year, this.currentMonth.month+1, 0).getDate()
+        return new Date(this.cDate.getFullYear(), this.cDate.getMonth()+1, 0).getDate()
       }
     },
     methods: {
       monthMinus() {
-        this.currentMonth.month--
-        if (this.currentMonth.month < 0) {
-          this.currentMonth.month = 11
-          this.currentMonth.year--
-        }
+        const changeDate = new Date(this.cDate)
+        changeDate.setMonth(this.cDate.getMonth() - 1)
+        this.cDate = changeDate
       },
       monthPlus() {
-        this.currentMonth.month++
-        if (this.currentMonth.month > 11) {
-          this.currentMonth.month = 0
-          this.currentMonth.year++
-        }
+        const changeDate = new Date(this.cDate)
+        changeDate.setMonth(this.cDate.getMonth() + 1)
+        this.cDate = changeDate
       },
-      touch(event) {
-        this.mousePos = {
-          x: event.x,
-          y: event.y,
-          state: 'touch'
+      modalPopup(event) {
+        let _t = event.target
+        if (!_t.classList.contains('date')) {
+          _t = _t.parentElement
         }
+        this.laters = _t.dataset.info
+        this.modalShow = true
       },
-      takeOff(event) {
-        this.mousePos = {
-          x: event.x,
-          y: event.y,
-          state: 'takeoff'
-        }
-
-        console.log('takeOff')
-      },
-      swipe(event) {
-        const endPos = {
-          x: event.x,
-          y: event.y,
-        }
-
-        if (this.mousePos.state === 'touch') {
-          document.querySelectorAll('.lates').forEach(v => {
-            v.scrollTo(v.scrollLeft + (this.mousePos.x - endPos.x) / 10, v.scrollTop)
-          })
-          console.log(this.mousePos.state)
-        }
-      },
-      viewIndex(event) {
-        const student = event.target.dataset.studentid
-        const date = event.target.dataset.date+1
-        // do anything
-      }
+    },
+    components: {
+      modal
     }
   }
 </script>
@@ -133,25 +155,45 @@
 <style scoped>
 * {
   user-select: none;
+  box-sizing: border-box;
 }
 
-div {
-  width: 100%;
-  height: 100%;
+.dateSelector {
+  margin: 2em 0;
 }
 
-.late {
+.date {
   display: inline-block;
-  width: 2em;
-  height: 2em;
+  width: 48px;
+  height: 48px;
+  font-size: 1em;
   background-color: antiquewhite;
-  margin: 0.1em;
+  background-clip: content-box;
+  padding: 4px;
+  line-height: 48px;
+  vertical-align: middle;
+  position: relative;
+  color: grey;
 }
 
-.lates {
-  display: inline-block;
-  width: 80%;
-  overflow-x: hidden;
-  white-space: nowrap;
+.date.cMonth {
+  font-weight: bold;
+  color: #323232;
+}
+
+.latersNumber {
+  font-size: 0.5em;
+  width: 2em;
+  height: 1em;
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  background-color: #3287FC;
+  color: white;
+  font-weight: bold;
+  line-height: initial;
+  padding: 0.5em;
+  box-sizing: content-box;
+  border-radius: 1em;
 }
 </style>

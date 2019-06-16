@@ -10,9 +10,15 @@
         <span class="studentId" v-show="false">{{ student.id }}</span>
         <input type="text" class="name" v-model="student.name">
         <input type="number" class="paid" v-model.number="student.paid">
-        <span>원 지불</span>
+        <span>회 지불</span>
         <button class="modify" @click="updateStudent">수정</button>
         <button class="delete" @click="deleteStudent">삭제</button>
+        <span class="lateResult">
+          <span>지각 </span><span class="late">{{ lateNumberList[index] }}</span><span>회 / </span>
+        </span>
+        <span class="penaltyResult">
+          <span>미납금 </span><span :class="{unpaid:true, warn:unpaidList[index] > 0}">{{ unpaidList[index] }}</span><span>원</span>
+        </span>
       </li>
     </ul>
     <span>총 학생 수 : {{ database.students.length }} 명</span>
@@ -38,8 +44,37 @@
       ...mapState([
         'database'
       ]),
+      lateNumberList() {
+        const arr = []
+        const _getUnpaid = student => {
+          return this.database.lates.filter(_e =>
+            _e.student === student.id
+          ).length
+        }
+        for (const e of this.database.students) {
+          arr.push(_getUnpaid(e))
+        }
+        return arr
+      },
+      unpaidList() {
+        const arr = []
+        const _getUnpaid = student => {
+          return (this.database.lates.filter(_e =>
+            _e.student === student.id
+          ).length - +student.paid) * this.database.penalty
+        }
+        for (const e of this.database.students) {
+          arr.push(_getUnpaid(e))
+        }
+        return arr
+      }
     },
     methods: {
+      getUnpaid(student) {
+        return ((this.database.lates.filter(_e =>
+          _e.student === student.id
+        ).length - +student.paid) * this.database.penalty + '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      },
       addStudent() {
         const studentNumber = this.database.studentNumber + 1
 
@@ -48,7 +83,6 @@
           name: this.addingStudent.name,
           paid: 0
         }
-
 
         this.firebaseDatabase.update({
           studentNumber,
@@ -115,6 +149,37 @@ input {
 }
 
 .paid {
-  text-align: right;
+  width: 4em;
+}
+
+.lateResult,
+.penaltyResult {
+  display: inline-block;
+  padding: 0 1em;
+  margin: 0 0.5em;
+  color: #fff;
+}
+
+.lateResult {
+  background-color: #3287FC;
+}
+
+.penaltyResult {
+  background-color: #fc9e32;
+}
+
+.unpaid {
+  display: inline-block;
+  width: 4em;
+}
+
+.late {
+  display: inline-block;
+  width: 2em;
+  font-weight: bold;
+}
+
+.unpaid.warn {
+  color: crimson;
 }
 </style>
