@@ -1,13 +1,12 @@
 <template>
   <div class='login'>
-    Hello world! this is login test;
     <div id="firebaseui-auth-container">
-      Hello world!
     </div>
   </div>
 </template>
 
 <script>
+  import router from '@/router'
   import firebase from 'firebase'
   import firebaseui from 'firebaseui'
   import { mapState, mapMutations } from 'vuex'
@@ -31,6 +30,7 @@
           callbacks: {
             signInSuccessWithAuthResult(authResult, redirectUrl) {
               const_this.login(firebase.auth().currentUser)
+              router.push('/')
               return false; // redirect?
             },
           },

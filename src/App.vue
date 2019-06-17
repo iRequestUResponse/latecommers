@@ -1,19 +1,27 @@
 <template>
   <div id="app">
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div> -->
-    <router-link to="/">Home</router-link>
-    <router-link to="/login" v-if="!isLogin">Login</router-link>
-    <router-link to="/management" v-if="isLogin">Management</router-link>
-    <router-link to="/" @click.native="logout" v-if="isLogin">Logout</router-link>
-    <!-- <button @click="test">test</button> -->
+    <nav>
+      <router-link to="/">Home</router-link>
+      <router-link to="/login" v-if="!currentUser">Login</router-link>
+      <router-link to="/management" v-if="currentUser">Management</router-link>
+      <router-link to="/" @click.native="logout" v-if="currentUser">Logout</router-link>
+    </nav>
     <router-view/>
   </div>
 </template>
 
 <style>
+@charset 'utf-8';
+
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR&display=swap');
+
+* {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+body {
+  margin: 0;
+}
 
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -21,7 +29,22 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+nav {
+  height: 128px;
+  background-color: grey;
+  margin: 0;
+  background: url('./assets/back.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+a {
+  background-color: #FFF;
+  margin: 1em;
+  padding: 0.5em;
+
 }
 </style>
 
@@ -32,7 +55,7 @@ import { mapState, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      isLogin: false
+      
     }
   },
   computed: {
@@ -40,18 +63,10 @@ export default {
       'currentUser'
     ]),
   },
-  watch: {
-    currentUser() {
-      this.isLogin = !!firebase.auth().currentUser
-    }
-  },
   methods: {
     ...mapActions([
       'init', 'logout'
     ]),
-    test() {
-      this.isLogin = !!firebase.auth().currentUser
-    }
   },
   created() {
     this.init()

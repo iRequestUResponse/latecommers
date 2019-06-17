@@ -43,13 +43,14 @@ export default new Vuex.Store({
       })
 
       firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-
+      
+      firebase.database().ref('/jaehoon').on('value', function(snapshot) {
+        commit('update', snapshot.val())
+      })
+      
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
           commit('login', user)
-          firebase.database().ref('/jaehoon').on('value', function(snapshot) {
-            commit('update', snapshot.val())
-          })
         }
       })
 
@@ -60,9 +61,7 @@ export default new Vuex.Store({
         commit('logout')
       }).catch(function(error) {
         console.log('failed to logout')
-        console.warn(error)
       })
     },
   },
-  
 })
