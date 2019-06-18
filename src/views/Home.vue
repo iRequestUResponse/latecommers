@@ -10,21 +10,47 @@
         {{ ((total.count - total.paid) * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/, ',') }}원
       </span>
     </div>
-    <div class="title">
+    <!-- <div class="title">
       지각자 목록
-    </div>
+    </div> -->
     <div class="laters">
-      <div class="later" v-for="(later, laterIndex) in laterList" :key="laterIndex">
-        <span class="name">
-          {{ later.name }}
-        </span>
-        <span class="late">
-          {{ later.paid }}/{{ later.count }}
-        </span>
-        <span class="unpaid">
-          {{ later.count - later.paid }}
-        </span>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th colspan="4" class="title">지각자 목록</th>
+          </tr>
+          <tr>
+            <th>
+              이름
+            </th>
+            <th>
+              지각
+            </th>
+            <th>
+              지불
+            </th>
+            <th>
+              미납
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="later" v-for="(later, laterIndex) in laterList" :key="laterIndex">
+            <td class="name">
+              {{ later.name }}
+            </td>
+            <td class="count">
+              {{ later.count }}
+            </td>
+            <td class="paid">
+              {{ later.paid }}
+            </td>
+            <td :class="{unpaid: true, on: later.count > later.paid}">
+              {{ later.count - later.paid }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -107,6 +133,14 @@
   margin: 0;
 }
 
+table {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-size: 24px;
+  border-collapse: collapse;
+}
+
 .title {
   background-color: lightgrey;
   height: 2em;
@@ -116,12 +150,12 @@
   line-height: 2em;
 }
 
-.laters {
-  background-color: #d7e4f8;
+th:not(.title) {
+  border-bottom: 2px dashed #bebaba;
 }
 
-.laters .later {
-  font-size: 24px;
+.laters {
+  background-color: #d7e4f8;
 }
 
 .later .name {
@@ -130,6 +164,9 @@
 
 .later .unpaid {
   font-weight: bold;
+}
+
+.later .unpaid.on {
   color: crimson;
 }
 </style>
