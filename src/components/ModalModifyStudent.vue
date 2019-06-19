@@ -1,5 +1,5 @@
 <template>
-  <div @click="hideModal" :class="{modal: true, on: show}">
+  <div @click="hideModal" :class="{modal: true, canhide:true, on: show}">
     <div class="box">
       <span class="date">
         {{ dateInfo.month + 1 }}월 {{ dateInfo.date }}일
@@ -20,15 +20,20 @@
         </div>
         <div class="studentList">
           <div class="title">학생목록</div>
-          <div :class="{student: true, checked: !!addLaters.find(_e => _e.student === student.id)}" v-for="(student, studentIndex) in database.students" :key="studentIndex" v-show="!(dateInfo.laters || []).includes(student.id)"
-          :data-info="JSON.stringify({studentid:student.id, dateInfo})"
-          @click="addLater">
+          <div
+            :class="{student: true, checked: !!addLaters.find(_e => _e.student === student.id)}"
+            v-for="(student, studentIndex) in database.students"
+            :key="studentIndex" v-show="!(dateInfo.laters || []).includes(student.id)"
+            :data-info="JSON.stringify({studentid:student.id, dateInfo})"
+            @click="addLater"
+          >
             {{ student.name }}
           </div>
         </div>
       </div>
-      <div class="add">
-        <button @click="submitLaters">제출</button>
+      <div class="buttons">
+        <i class="submit fas fa-check" @click="submitLaters"></i>
+        <i class="cancel fas fa-times canhide" @clirk="hideModal"></i>
       </div>
     </div>
   </div>
@@ -98,9 +103,15 @@
         }
       },
       submitLaters() {
-        const lates = this.database.lates.filter(_e => !this.removeLaters.find(_r => _e.student === _r.student))
+        function equals(a, b) {
+          return a.student === b.student
+          && a.date == b.date
+          && a.month == b.month
+          && a.year == b.year
+        }
+        const lates = this.database.lates.filter(_e => !this.removeLaters.find(_r => equals(_e, _r)))
 
-        const confirm = window.confirm('내역을 되돌릴 수 없습니다. 정말 수정하시겠습니까?')
+        const confirm = window.confirm('정말 수정하시겠습니까?')
         if (!confirm) return
 
         firebase.database().ref('/jaehoon').update({
@@ -108,7 +119,7 @@
         })
       },
       hideModal(event) {
-        if (event.target.classList.contains('modal')) {
+        if (event.target.classList.contains('canhide')) {
           this.addLaters = []
           this.removeLaters = []
           this.$emit('hide')
@@ -126,6 +137,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.25);
+    font-size: 24px;
   }
 
   .modal:not(.on) {
@@ -147,24 +159,55 @@
 
   .date {
     font-weight: bold;
-  }
-
-  .allList > div {
-    width: 5em;
-    display: inline-block;
-    vertical-align: top;
-    background-color: bisque;
-    margin: 1em;
-    padding: 1em;
-    background-clip: content-box;
+    display: block;
+    top: 0;
+    width: 100%;
+    height: 48px;
+    line-height: 48px;
+    background-color: #f7f7f7;
+    position: sticky;
+    border-radius: 16px;
+    box-shadow: 0px 0px 64px -16px grey;
   }
 
   .allList .title {
     background-color: #fff;
-    color: rgb(109, 54, 54);
+    color: #6d3636;
     padding: .5em;
     font-weight: bold;
-    margin: 0 0 1em;
+  }
+
+  .allList > div {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .laters,
+  .student {
+    width: 100px;
+    height: 48px;
+    font-weight: bold;
+    font-size: 24px;
+    vertical-align: middle;
+    line-height: 48px;
+    padding: 8px 12px;
+    background-clip: content-box;
+  }
+
+  .laters {
+    background-color: #f5eaea;
+  }
+
+  .laters:hover {
+    background-color: #d8c3c3;
+  }
+
+  .student {
+    background-color: #eaedf5;
+  }
+
+  .student:hover {
+    background-color: #c3c9d8;
   }
 
   .checked {
@@ -177,5 +220,31 @@
 
   .studentList .checked {
     color: #3287FC;
+  }
+
+  .buttons {
+    width: 100%;
+    text-align: right;
+  }
+
+  .buttons > i {
+    font-size: 48px;
+    margin: 0 8px;
+  }
+
+  .submit {
+    color: #4e9270;
+  }
+
+  .submit:hover {
+    color: #3a614e;
+  }
+
+  .cancel {
+    color: #924e4e;
+  }
+
+  .cancel:hover {
+    color: #613a3a;
   }
 </style>

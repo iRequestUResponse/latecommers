@@ -31,6 +31,17 @@ export default new Vuex.Store({
     update(state, payload) {
       state.database = { ...state.database, ...payload }
     },
+    updateStudentPaidMutation(state, {id, paid}) {
+      for (const i in state.database.students) {
+        if (state.database.students[i].id === id) {
+          state.database.students[i].paid = paid
+          break;
+        }
+      }
+      firebase.database().ref('/jaehoon').update(state.database).catch(e => {
+        console.log('login please')
+      })
+    }
   },
   actions: {
     init({ commit }) {
@@ -63,5 +74,8 @@ export default new Vuex.Store({
         console.log('failed to logout')
       })
     },
+    updateStudentPaid({ commit }, {id, paid}) {
+      commit('updateStudentPaidMutation', {id, paid})
+    }
   },
 })

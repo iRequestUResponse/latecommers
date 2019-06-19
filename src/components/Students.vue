@@ -2,28 +2,31 @@
   <div>
     <h1>학생 관리</h1>
     <span class="warn">학생 이름이 겹치면 헷갈릴 수 있으니 주의해주세요</span> <br>
-    <span class="warn">이 곳에서 금액 수정은 꼭 필요한 경우에만 해주세요</span>
+    <!-- <span class="warn">이 곳에서 금액 수정은 꼭 필요한 경우에만 해주세요</span> -->
 
     <ul>
-      <li v-for="(student, index) in database.students" :key="index">
-        <input type="hidden" class="index" :value="index">
-        <span class="studentId" v-show="false">{{ student.id }}</span>
+      <li
+        v-for="(student, index) in database.students"
+        :key="index"
+        :data-student="JSON.stringify(student)"
+      >
+        <!-- <span class="name">{{ student.name }}</span> -->
         <input type="text" class="name" v-model="student.name">
-        <input type="number" class="paid" v-model.number="student.paid">
+        <!-- <span class="paid" v-text="student.paid"></span>
         <span>회 지불</span>
-        <button class="modify" @click="updateStudent">수정</button>
-        <button class="delete" @click="deleteStudent">삭제</button>
         <span class="lateResult">
-          <span>지각 </span><span class="late">{{ lateNumberList[index] }}</span><span>회 / </span>
+          <span>지각 </span><span class="late">{{ lateNumberList[index] }}</span><span>회</span>
         </span>
-        <span class="penaltyResult">
-          <span>미납금 </span><span :class="{unpaid:true, warn:unpaidList[index] > 0}">{{ unpaidList[index] }}</span><span>원</span>
-        </span>
+        <span :class="{unpaid:true, warn:unpaidList[index] > 0}">{{ unpaidList[index] }}</span> -->
+        <i class="button fas fa-check-circle" @click="updateStudent"></i>
+        <i class="button fas fa-user-times" @click="deleteStudent"></i>
       </li>
     </ul>
     <span>총 학생 수 : {{ database.students.length }} 명</span>
     <br>
-    <input type="text" v-model="addingStudent.name"> <button @click="addStudent">학생 추가</button>
+    <div class="addStudent">
+      <input type="text" v-model="addingStudent.name"> <i class="button fas fa-user-plus" @click="addStudent"></i>
+    </div>
   </div>
 </template>
 
@@ -84,18 +87,18 @@
           paid: 0
         }
 
+        if (student.name.trim() === "") return
+
+        if (!window.confirm('정말 추가하시겠습니까?')) return
+
         this.firebaseDatabase.update({
           studentNumber,
           students: this.database.students.concat([student])
         })
       },
       updateStudent(event) {
-        const confirm = window.confirm('내역을 되돌릴 수 없습니다. 정말 수정하시겠습니까?')
-        if (!confirm) return
-
         const parent = event.target.parentElement
-        const index = parent.querySelector('.index').value
-        const student = this.database.students[index]
+        const student = JSON.parse(parent.dataset.student)
 
         this.firebaseDatabase.update({
           students: this.database.students
@@ -106,8 +109,7 @@
         if (!confirm) return
 
         const parent = event.target.parentElement
-        const index = parent.querySelector('.index').value
-        const student = this.database.students[index]
+        const student = JSON.parse(parent.dataset.student)
 
         this.database.students.splice(index, 1)
 
@@ -136,16 +138,20 @@ button {
 
 input {
   border: none;
-  background-color: #748292;
-  color: #FFF;
+  border-bottom: 1px solid #555;
+  color: #555;
+  font-size: 1em;
   height: 1.5em;
   padding: 0.25em 0.5em;
   vertical-align: top;
+  margin: 1em;
 }
 
 .name {
   width: 10em;
   margin-right: 1em;
+  width: 96px;
+  text-align: center;
 }
 
 .paid {
@@ -164,11 +170,8 @@ input {
   background-color: #3287FC;
 }
 
-.penaltyResult {
-  background-color: #fc9e32;
-}
-
 .unpaid {
+  background-color: #fc9e32;
   display: inline-block;
   width: 4em;
 }
@@ -181,5 +184,20 @@ input {
 
 .unpaid.warn {
   color: crimson;
+}
+
+.button {
+  color: grey;
+  vertical-align: middle;
+  font-size: 24px;
+  margin: 0.25em;
+}
+
+.button:hover {
+  color: #555555;
+}
+
+.addStudent {
+  margin-bottom: 2em;
 }
 </style>

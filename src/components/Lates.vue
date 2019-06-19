@@ -1,17 +1,18 @@
 <template>
   <div id="touchMover">
     <div class="dateSelector">
-      <button @click="monthMinus">&lt;</button><span>{{ cDate.getFullYear() }}년 {{ cDate.getMonth() + 1 }} 월</span><button @click="monthPlus">&gt;</button>
+      <i class="fas fa-chevron-left" @click="monthMinus"></i>
+      <span class="dateMonth">{{ cDate.getFullYear() }}년 {{ cDate.getMonth() + 1 }} 월</span>
+      <i class="fas fa-chevron-right" @click="monthPlus"></i>
     </div>
     <div class="calendar">
-      <div v-for="(calRow, calIndex) in getCalendar" :key="calIndex">
+      <div v-for="(calRow, calIndex) in getCalendar" :key="calIndex" class="dateP">
         <span
           v-for="(date, dateIndex) in calRow" :key="dateIndex"
           :class="{date: true, cMonth: date.month === cDate.getMonth()}"
           :data-info="JSON.stringify(date)"
           @click="modalPopup"
         >
-        <!-- span class에 미납자 여부에 따라서 색 다르게 하자 -->
           {{ date.date }}
           <div class="latersNumber" v-if="date.laters.length > 0">
             {{ date.laters.length }}
@@ -160,6 +161,20 @@
 
 .dateSelector {
   margin: 2em 0;
+  font-size: 24px;
+}
+
+.dateSelector > .dateMonth {
+  display: inline-block;
+  width: 200px;
+}
+
+.dateSelector > *:hover {
+  color: #3287FC;
+}
+
+.calendar > div.dateP > span:hover {
+  color: #3287FC;
 }
 
 .date {
@@ -167,8 +182,9 @@
   width: 48px;
   height: 48px;
   font-size: 1em;
-  background-color: antiquewhite;
+  background-color: #e7cca9;
   background-clip: content-box;
+  border-radius: 16px;
   padding: 4px;
   line-height: 48px;
   vertical-align: middle;

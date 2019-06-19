@@ -2,9 +2,9 @@
   <div id="app">
     <nav>
       <router-link class="home" to="/"><i class="fas fa-home"></i></router-link>
-      <router-link class="login" to="/login" v-if="!currentUser">Login</router-link>
-      <router-link class="management" to="/management" v-if="currentUser">Management</router-link>
-      <router-link class="logout" to="/" @click.native="logout" v-if="currentUser">Logout</router-link>
+      <router-link class="login" to="/login" v-if="!currentUser"><i class="fas fa-sign-in-alt"></i></router-link>
+      <router-link class="management" to="/management" v-if="currentUser"><i class="fas fa-tasks"></i></router-link>
+      <router-link class="logout" to="/" @click.native="logout" v-if="currentUser"><i class="fas fa-sign-out-alt"></i></router-link>
     </nav>
     <div class="back">
 
@@ -37,11 +37,10 @@ body {
 }
 
 nav {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
-  height: 64px;
   background-color: #FFF;
   margin: 0;
   text-align: right;
@@ -54,43 +53,17 @@ nav {
   background: url('./assets/back.jpg');
   background-attachment: fixed;
   background-size: 100%;
-  margin-top: 64px;
 }
 
 a {
-  /* background-color: #FFF; */
-  /* margin: 1em; */
-  /* padding: 0.5em; */
   text-decoration: none;
   color: #000;
   font-size: 24px;
+  margin-left: 1em;
 }
 
 a:hover {
   color: rgb(94, 113, 141);
-}
-
-.home {
-  position: fixed;
-  left: 0;
-  top: 0;
-  font-size: 32px;
-  padding: 0;
-  margin: 0.25em;
-}
-
-.logout {
-  margin-left: 2em;
-}
-
-.management,
-.logout {
-  display: inline-block;
-  background-color: rgb(240, 241, 243);
-  /* border-radius: 16px; */
-  padding: 0.5em;
-  height: 100%;
-  box-sizing: border-box;
 }
 </style>
 

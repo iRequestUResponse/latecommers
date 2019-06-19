@@ -10,9 +10,6 @@
         {{ ((total.count - total.paid) * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/, ',') }}원
       </span>
     </div>
-    <!-- <div class="title">
-      지각자 목록
-    </div> -->
     <div class="laters">
       <table>
         <thead>
@@ -29,13 +26,13 @@
             <th>
               지불
             </th>
-            <th>
+            <th :class="{isUnpaid: total.count > total.paid}">
               미납
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr class="later" v-for="(later, laterIndex) in laterList" :key="laterIndex">
+          <tr class="later" v-for="(later, laterIndex) in unpaidLaters" :key="laterIndex">
             <td class="name">
               {{ later.name }}
             </td>
@@ -43,9 +40,23 @@
               {{ later.count }}
             </td>
             <td class="paid">
-              {{ later.paid }}
+              <i class="fas fa-minus-circle plusMinus" :data-later="JSON.stringify(later)" @click="minus" v-if="currentUser"></i> {{ later.paid }} <i class="fas fa-plus-circle plusMinus" :data-later="JSON.stringify(later)" @click="plus" v-if="currentUser"></i>
             </td>
-            <td :class="{unpaid: true, on: later.count > later.paid}">
+            <td :class="{unpaid: true, isUnpaid: later.count > later.paid}">
+              {{ later.count - later.paid }}
+            </td>
+          </tr>
+          <tr class="later" v-for="(later, laterIndex) in paidLaters" :key="laterIndex">
+            <td class="name">
+              {{ later.name }}
+            </td>
+            <td class="count">
+              {{ later.count }}
+            </td>
+            <td class="paid">
+              <i class="fas fa-minus-circle plusMinus" :data-later="JSON.stringify(later)" @click="minus" v-if="currentUser"></i> {{ later.paid }} <i class="fas fa-plus-circle plusMinus" :data-later="JSON.stringify(later)" @click="plus" v-if="currentUser"></i>
+            </td>
+            <td :class="{unpaid: true, isUnpaid: later.count > later.paid}">
               {{ later.count - later.paid }}
             </td>
           </tr>
@@ -56,16 +67,21 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+  import { mapState, mapActions } from 'vuex'
   
   export default {
     computed: {
       ...mapState([
-        'database'
+        'database', 'currentUser'
       ]),
+      paidLaters() {
+        return this.laterList.filter(e => e.count <= e.paid)
+      },
+      unpaidLaters() {
+        return this.laterList.filter(e => e.count > e.paid)
+      },
       laterList() {
         const arr = []
-        // const arr = this.database.students
         const db = this.database
 
         for (const e of db.lates) {
@@ -98,7 +114,7 @@
           paid: 0,
           count: 0
         }
-        for (const e of this.laterList) { // It can be spaghetti source
+        for (const e of this.laterList) {
           result.paid += e.paid
           result.count += e.count
         }
@@ -107,9 +123,26 @@
       }
     },
     methods: {
+      ...mapActions([
+        'updateStudentPaid'
+      ]),
       getStudent(id) {
         return this.database.students.find(e => e.id === id)
-      }
+      },
+      minus(event) {
+        const target = event.target
+        const later = JSON.parse(target.dataset.later)
+        const id = later.id
+        const paid = later.paid - 1
+        this.updateStudentPaid({id, paid})
+      },
+      plus(event) {
+        const target = event.target
+        const later = JSON.parse(target.dataset.later)
+        const id = later.id
+        const paid = later.paid + 1
+        this.updateStudentPaid({id, paid})
+      },
     },
   }
 </script>
@@ -150,6 +183,10 @@ table {
   line-height: 2em;
 }
 
+tr {
+  height: 96px;
+}
+
 th:not(.title) {
   border-bottom: 2px dashed #bebaba;
 }
@@ -166,7 +203,28 @@ th:not(.title) {
   font-weight: bold;
 }
 
-.later .unpaid.on {
+.isUnpaid {
   color: crimson;
+}
+
+.plusMinus {
+  margin: 0 12px;
+  font-size: 32px;
+}
+
+.fa-plus-circle {
+  color: #436694;
+}
+
+.fa-plus-circle:hover {
+  color: #344761;
+}
+
+.fa-minus-circle {
+  color: #944343;
+}
+
+.fa-minus-circle:hover {
+  color: #613434;
 }
 </style>
