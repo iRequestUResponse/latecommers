@@ -32,7 +32,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="later" v-for="(later, laterIndex) in unpaidLaters" :key="laterIndex">
+          <tr class="later" v-for="(later) in unpaidLaters" :key="later.id">
             <td class="name">
               {{ later.name }}
             </td>
@@ -46,7 +46,7 @@
               {{ later.count - later.paid }}
             </td>
           </tr>
-          <tr class="later" v-for="(later, laterIndex) in paidLaters" :key="laterIndex">
+          <tr class="later" v-for="(later) in paidLaters" :key="later.id">
             <td class="name">
               {{ later.name }}
             </td>

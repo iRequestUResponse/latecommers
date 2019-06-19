@@ -20,6 +20,7 @@
         </span>
       </div>
     </div>
+    <footer></footer>
     <modal :show="modalShow" :laters="laters" @hide="modalShow = false"></modal>
   </div>
 </template>
@@ -211,5 +212,9 @@
   padding: 0.5em;
   box-sizing: content-box;
   border-radius: 1em;
+}
+
+footer {
+  height: 96px;
 }
 </style>
