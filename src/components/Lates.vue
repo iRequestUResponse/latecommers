@@ -29,7 +29,6 @@
   import firebase from 'firebase'
   import { mapState } from 'vuex'
   import modal from '@/components/ModalModifyStudent.vue'
-  import Hammer from '@/assets/hammer.min.js'
 
   export default {
     mounted() {
