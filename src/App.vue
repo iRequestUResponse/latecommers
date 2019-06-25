@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <nav>
+      <a :href="'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(database))" :download="currentUser.email + '.json'" v-if="currentUser"><i class="fas fa-download"></i></a>
       <router-link class="home" to="/"><i class="fas fa-home"></i></router-link>
       <router-link class="login" to="/login" v-if="!currentUser"><i class="fas fa-sign-in-alt"></i></router-link>
       <router-link class="management" to="/management" v-if="currentUser"><i class="fas fa-tasks"></i></router-link>
@@ -68,7 +69,6 @@ a:hover {
 </style>
 
 <script>
-import firebase from 'firebase'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -79,7 +79,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'currentUser'
+      'currentUser', 'database'
     ]),
   },
   methods: {
